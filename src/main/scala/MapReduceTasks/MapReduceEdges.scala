@@ -71,6 +71,17 @@ object MapReduceEdges {
     }.toList
     nodeObjects
   }
+
+  def calculateActionSimilarity(action: Action, G: List[Action]): List[(Action, Double)] = {
+    val setOriginalProps = Set(action.actionType, action.fromId, action.toId, action.resultingValue, action.cost)
+    G.map { actionP =>
+      val setPerturbedProps = Set(actionP.actionType, action.fromId, action.toId, actionP.resultingValue, actionP.cost)
+      val intersectionSize = setOriginalProps.intersect(setPerturbedProps).size.toDouble
+      val unionSize = setOriginalProps.union(setPerturbedProps).size.toDouble
+      val score = if (unionSize == 0.0) 0.0 else intersectionSize / unionSize
+      (actionP, (score * 1000).round / 1000.toDouble)
+    }
+  }
   class Mapper1 extends MapReduceBase with Mapper[LongWritable, Text, Text, Text]:
 
     @throws[IOException]
@@ -78,17 +89,6 @@ object MapReduceEdges {
 
       val line: String = value.toString
       val pairs = line.split(";")
-
-      def calculateActionSimilarity(action: Action, G: List[Action]): List[(Action, Double)] = {
-        val setOriginalProps = Set(action.actionType, action.fromId, action.toId, action.resultingValue, action.cost)
-        G.map { actionP =>
-          val setPerturbedProps = Set(actionP.actionType, action.fromId, action.toId, actionP.resultingValue, actionP.cost)
-          val intersectionSize = setOriginalProps.intersect(setPerturbedProps).size.toDouble
-          val unionSize = setOriginalProps.union(setPerturbedProps).size.toDouble
-          val score = if (unionSize == 0.0) 0.0 else intersectionSize / unionSize
-          (actionP, (score * 1000).round / 1000.toDouble)
-        }
-      }
 
       val ActionObjectsG1 = retrieveActionObjects(pairs(0))
       val ActionObjectsG2 = retrieveActionObjects(pairs(1))

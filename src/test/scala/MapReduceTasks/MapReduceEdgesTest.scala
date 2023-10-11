@@ -41,5 +41,20 @@ class MapReduceEdgesTest extends AnyFlatSpec with Matchers with MockitoSugar {
     result should be(empty)
   }
 
+  "calculateActionSimilarity" should "return a list of action scores for a given action and a list of actions" in {
+    val action = Action(3,NodeObject(4,1,0,1,37,0,1,11,0.6106211718868338),NodeObject(218,5,10,1,23,1,0,8,0.8836287535263367),0,7,None,0.9658401952926567)
+    val actionList = List(
+      Action(3,NodeObject(10,5,4,1,62,1,6,9,0.16823869789996215),NodeObject(5,2,2,1,9,3,3,0,0.9394583671960672),0,7,None,0.15537360692964874),
+      Action(18,NodeObject(0,0,10,1,45,2,1,4,0.9652635676061158),NodeObject(4,1,0,1,37,0,1,11,0.6106211718868338),0,0,Some(12),0.5270488266131074),
+      Action(15,NodeObject(32,4,4,1,28,3,4,19,0.9651301228875142),NodeObject(6,6,8,1,37,3,0,2,0.7451703675811245),88,97,None,0.09087667464854066),
+      Action(14,NodeObject(0,0,10,1,45,2,1,4,0.9652635676061158),NodeObject(32,4,4,1,28,3,4,19,0.9651301228875142),0,71,None,0.5930816561207392),
+    )
+
+    val result = MapReduceEdges.calculateActionSimilarity(action, actionList)
+    val scoreKey1 = result.head._2
+    val maxScore = result.maxBy(_._2)._2
+
+    maxScore shouldBe scoreKey1
+  }
 }
 

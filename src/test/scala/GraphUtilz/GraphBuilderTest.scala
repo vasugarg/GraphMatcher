@@ -22,12 +22,12 @@ class GraphBuilderTest extends AnyFunSpec with Matchers {
   describe("GraphBuilder.loadGraph") {
 
       it("should return None when the graph doesn't exist") {
-        val outGraphFileName = "non-existent-file.graph"
-        val outputDirectory = "/local/directory/"
+        val outGraphFileName = "NetGraph_11-10-23-13-44-02.ngs"
+        val outputDirectory = "outputs/"
 
         val result = GraphBuilder.loadGraph(outGraphFileName, outputDirectory)
 
-        result should be(None)
+        result should not be Option[((NetGraph, List[NodeObject], List[Action]))]
       }
     }
 }

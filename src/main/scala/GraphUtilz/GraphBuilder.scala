@@ -12,6 +12,11 @@ import scala.jdk.CollectionConverters.*
 import scala.util.Try
 import scala.jdk.CollectionConverters._
 
+/*
+ * This module uses NetGraph.load to load the .ngs graphs present in a local file or S3
+ * into the program
+ * */
+
 object GraphBuilder {
   val logger: Logger = CreateLogger(this.getClass)
 

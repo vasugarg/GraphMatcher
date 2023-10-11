@@ -16,6 +16,11 @@ import software.amazon.awssdk.regions.Region
 import software.amazon.awssdk.core.sync.RequestBody
 import java.net.URI
 
+/*
+ * This class writes the nodes from both Original & Perturbed Graphs separated by ;
+ * into a text file or S3 bucket
+ * */
+
 class nodeFileWriter(filepath: String, originalSubgraphs: List[MutableValueGraph[NodeObject, Action]],
                      perturbedSubgraphs: List[MutableValueGraph[NodeObject, Action]]) {
   val config: Config = ConfigFactory.load("application.conf")
@@ -26,10 +31,9 @@ class nodeFileWriter(filepath: String, originalSubgraphs: List[MutableValueGraph
       // Use S3-specific code for writing
       val s3UriParts = filepath.stripPrefix("s3://").split("/")
       val bucket = s3UriParts.head
+      val objectKey = s3UriParts.tail.mkString("/") + config.getString("NGSimulator.ngsCompareS3.s3nodeShardsfileName")
       val awsRegion = Region.US_EAST_1 // Replace with your AWS region
       val s3 = S3Client.builder().region(awsRegion).build()
-      val bucketName = "cs-441" // Replace with your S3 bucket name
-      val key = "HW1/ngscompare/shards/nodeShards.txt"
 
       try {
         logger.info("Creating shards for nodes. Each shard will have a list of nodes from the Original and Perturbed Graph")
@@ -41,11 +45,11 @@ class nodeFileWriter(filepath: String, originalSubgraphs: List[MutableValueGraph
         }.mkString
 
         // Upload the content to the S3 bucket
-        val request = PutObjectRequest.builder().bucket(bucketName).key(key).build()
+        val request = PutObjectRequest.builder().bucket(bucket).key(objectKey).build()
         val requestBody = RequestBody.fromString(content)
         s3.putObject(request, requestBody)
 
-        logger.info(s"Created the sharded file for nodes in S3 at s3://$bucket/$key")
+        logger.info(s"Created the sharded file for nodes in S3 at s3://$bucket/$objectKey")
       } catch {
         case e: Exception =>
           logger.error("An error occurred while writing to S3.", e)

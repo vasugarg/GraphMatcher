@@ -5,6 +5,7 @@ import _root_.com.google.common.graph.MutableValueGraph
 import NetGraphAlgebraDefs.{Action, NodeObject}
 import Utilz.CreateLogger
 import org.slf4j.Logger
+
 import scala.io.{BufferedSource, Source}
 import java.io.{BufferedWriter, File, FileWriter}
 import scala.collection.immutable.List
@@ -14,7 +15,13 @@ import software.amazon.awssdk.services.s3.S3Client
 import software.amazon.awssdk.services.s3.model.PutObjectRequest
 import software.amazon.awssdk.regions.Region
 import software.amazon.awssdk.core.sync.RequestBody
+
 import java.net.URI
+
+/*
+ * This class writes the edges from both Original & Perturbed Graphs separated by ; 
+ * into a text file or S3 bucket
+ * */
 
 class edgeFileWriter(filepath: String, originalSubgraphs: List[MutableValueGraph[NodeObject, Action]],
                      perturbedSubgraphs: List[MutableValueGraph[NodeObject, Action]]) {
@@ -26,7 +33,7 @@ class edgeFileWriter(filepath: String, originalSubgraphs: List[MutableValueGraph
       // Use S3-specific code for writing
       val s3UriParts = filepath.stripPrefix("s3://").split("/")
       val bucket = s3UriParts.head
-      val objectKey = s3UriParts.tail.mkString("/") + config.getString("NGSimulator.ngsCompare.edgeShardsfileName")
+      val objectKey = s3UriParts.tail.mkString("/") + config.getString("NGSimulator.ngsCompareS3.s3edgeShardsfileName")
       val awsRegion = Region.US_EAST_1 // Replace with your AWS region
       val s3 = S3Client.builder().region(awsRegion).build()
 
@@ -63,9 +70,7 @@ class edgeFileWriter(filepath: String, originalSubgraphs: List[MutableValueGraph
           }
         }.mkString
 
-        val bucketName = "cs-441" // Replace with your S3 bucket name
-        val key = "HW1/ngscompare/shards/edgeShards.txt"
-        val request = PutObjectRequest.builder().bucket(bucketName).key(key).build()
+        val request = PutObjectRequest.builder().bucket(bucket).key(objectKey).build()
         val requestBody = RequestBody.fromString(content)
         s3.putObject(request, requestBody)
 

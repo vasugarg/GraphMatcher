@@ -8,6 +8,11 @@ import com.google.common.graph.{Graphs, MutableValueGraph}
 import scala.collection.mutable.ListBuffer
 import scala.jdk.CollectionConverters.*
 
+/*
+ * This class generates induced subgraphs using the MutableValueGraph guava method
+ * and used BFS to traverse for finding the adjacent edges
+ * */
+
 class subgraphGenerator(graph: NetGraph) {
   private val visited = mutable.Set[NodeObject]()
   private val result = mutable.ListBuffer[List[NodeObject]]()

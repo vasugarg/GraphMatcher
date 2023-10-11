@@ -44,36 +44,36 @@ object MapReduceNodes {
     nodeObjects
   }
 
+  def calculateNodeSimilarity(node: NodeObject, G: List[NodeObject]): List[(NodeObject, Double)] = {
+    val childrenWeight = 10.0
+    val propsWeight = 2.0
+    val currentDepthWeight = 2.0
+    val propValueRangeWeight = 2.0
+    val maxDepthWeight = 2.0
+    val maxBranchingFactorWeight = 2.0
+    val maxPropertiesWeight = 5.0
+    val maxStoredValueWeight = 10.0
+
+    val setOriginalProps = Set(node.children, node.props, node.currentDepth, node.propValueRange,
+      node.maxDepth, node.maxBranchingFactor, node.maxProperties, node.storedValue)
+
+    G.map { nodeP =>
+      val setPerturbedProps = Set(nodeP.children, nodeP.props, nodeP.currentDepth, nodeP.propValueRange,
+        nodeP.maxDepth, nodeP.maxBranchingFactor, nodeP.maxProperties, nodeP.storedValue)
+      val intersectionSize = setOriginalProps.intersect(setPerturbedProps).size.toDouble
+      val unionSize = setOriginalProps.union(setPerturbedProps).size.toDouble
+      val score = if (unionSize == 0.0) 0.0 else intersectionSize / unionSize
+
+      (nodeP, (score * 1000).round / 1000.toDouble)
+    }
+  }
+
   class Mapper1 extends MapReduceBase with Mapper[LongWritable, Text, Text, Text]:
 
     @throws[IOException]
     override def map(key: LongWritable, value: Text, output: OutputCollector[Text, Text], reporter: Reporter): Unit =
       val line: String = value.toString
       val pairs = line.split(";")
-
-      def calculateNodeSimilarity(node: NodeObject, G: List[NodeObject]): List[(NodeObject, Double)] = {
-        val childrenWeight = 10.0
-        val propsWeight = 2.0
-        val currentDepthWeight = 2.0
-        val propValueRangeWeight = 2.0
-        val maxDepthWeight = 2.0
-        val maxBranchingFactorWeight = 2.0
-        val maxPropertiesWeight = 5.0
-        val maxStoredValueWeight = 10.0
-
-        val setOriginalProps = Set(node.children, node.props, node.currentDepth, node.propValueRange,
-          node.maxDepth, node.maxBranchingFactor, node.maxProperties, node.storedValue)
-
-        G.map { nodeP =>
-          val setPerturbedProps = Set(nodeP.children, nodeP.props, nodeP.currentDepth, nodeP.propValueRange,
-            nodeP.maxDepth, nodeP.maxBranchingFactor, nodeP.maxProperties, nodeP.storedValue)
-          val intersectionSize = setOriginalProps.intersect(setPerturbedProps).size.toDouble
-          val unionSize = setOriginalProps.union(setPerturbedProps).size.toDouble
-          val score = if (unionSize == 0.0) 0.0 else intersectionSize / unionSize
-
-          (nodeP, (score * 1000).round / 1000.toDouble)
-        }
-      }
 
       val nodeObjectsG1 = retrieveNodeObjects(pairs(0))
       val nodeObjectsG2 = retrieveNodeObjects(pairs(1))
