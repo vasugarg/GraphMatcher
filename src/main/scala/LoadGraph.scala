@@ -18,8 +18,8 @@ import org.slf4j.Logger
 import java.net.{InetAddress, NetworkInterface, Socket}
 import scala.util.{Failure, Success}
 
-object OldMain:
-  val logger:Logger = CreateLogger(classOf[OldMain.type])
+object LoadGraph:
+  val logger:Logger = CreateLogger(classOf[LoadGraph.type])
   val ipAddr: InetAddress = InetAddress.getLocalHost
   val hostName: String = ipAddr.getHostName
   val hostAddress: String = ipAddr.getHostAddress

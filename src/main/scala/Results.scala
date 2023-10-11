@@ -108,9 +108,9 @@ object Results {
     }
 
     val dtl = 0
-    val GTL: Float = atlEdges + atlNodes + dtl
-    val BTL: Float = ctlEdges + ctlNodes + wtlEdges + wtlNodes
-    val RTL: Float = GTL + BTL
+    val GTL = atlEdges + atlNodes + dtl
+    val BTL = ctlEdges + ctlNodes + wtlEdges + wtlNodes
+    val RTL = GTL + BTL
     val VPR: Double = ((GTL - BTL) / (2 * RTL)) + 0.5
     logger.info(s"VPR: $VPR")
     val ACC: Double = GTL / RTL
