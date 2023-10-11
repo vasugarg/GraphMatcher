@@ -36,17 +36,48 @@ sbt clean compile test
 1) Clone this repository
 
 ```
-repo (https://github.com/vasugarg/GraphMatcher)
+git clone https://github.com/vasugarg/GraphMatcher
 ```
 ```
 cd NetGameSim
 ```
 
 2) Open the project in intelliJ
-3) Please make sure to check the application.conf file under NetGameSim/GenericSimUtilities/src/main/resources/application.conf and ensure that the Perturbed and Original NGS files are present at the location.
-4) You can generate the required files by making the necessary changes in the conf file and then running the OldMain file to generate the graphs. (Please make sure to override the output directory in the conf file)
+3) Open application.conf under NetGameSim/GenericSimUtilities/src/main/resources/application.conf and make sure to have the graphs loaded under graphDirectory or run OldMain to generate the graphs. Below are the configuration settings that needs to be set for the program to run.
 
-5) Running project via SBT Run. Please delete the `output` folder in project root before you run the below command.
+##### Configuration Settings (application.conf)
+
+- **`task3Name` and `task4Name**
+  - **Purpose:** Define the names of specific tasks in the application.
+
+- **`graphDirectory`**
+  - **Purpose:** Specifies the directory for graph-related files.
+
+- **`originalGraphFileName`**
+  - **Purpose:** Sets the filename for the original graph data.
+
+- **`perturbedGraphFileName`**
+  - **Purpose:** Specifies the filename for the perturbed graph data.
+
+- **`shardsDirectory`**
+  - **Purpose:** Defines the directory path for shard-related files, such as `nodeShards.txt` and `edgeShards.txt`.
+
+- **`yamlFilePath`**
+  - **Purpose:** Sets the path to a YAML file associated with the application.
+
+- **`mapReduceOutputDir`**
+  - **Purpose:** Specifies the directory for saving MapReduce job output.
+
+- **`nodeShardsfileName` and `edgeShardsfileName`**
+  - **Purpose:** Define filenames for node shard and edge shard data.
+
+- **Paths and Directories:**
+  - Note that certain settings specify directory paths relative to the project's root directory. The project's classpath is used to locate resources specified in these paths.
+  - For example, if `graphDirectory` is set to `"outputs/"`, it refers to the `outputs` directory within the project's root directory.
+  - Similarly, `shardsDirectory` is set to `"src/main/resources/input/"`, which refers to the `input` directory within the `src/main/resources` directory of the project.
+  - These relative paths are resolved based on the project's classpath, providing flexibility and independence from specific absolute file paths.
+
+4) Running project via SBT Run. Please delete the `output` folder in project root before you run the below command.
 
 ```
 sbt run
