@@ -16,13 +16,29 @@ import org.slf4j.Logger
 
 class MapReduceEdgesTest extends AnyFlatSpec with Matchers with MockitoSugar {
 
-  it should "handle valid input with special characters in properties" in {
-    val input = "NodeObject(1, 2, 3, 4, 5, 6, 7, 1.23)"
-    val result = MapReduceEdges.retrieveNodeObjects(input)
-    val expected = List(
-      NodeObject(1, 2, 3, 4, 5, 6, 7, 1, 1.23)
+  "retrieveActionObjects" should "parse valid input correctly" in {
+    val input = "Action(1,NodeObject(0,3,11,1,92,1,5,2,0.6143455019720926),NodeObject(1,4,12,2,93,2,6,3,0.7143455019720926),3,4,Some(42),2.5)"
+    val result = MapReduceEdges.retrieveActionObjects(input)
+
+    val expectedAction = Action(
+      actionType = 1,
+      fromNode = NodeObject(0, 3, 11, 1, 92, 1, 5, 2, 0.6143455019720926),
+      toNode = NodeObject(1, 4, 12, 2, 93, 2, 6, 3, 0.7143455019720926),
+      fromId = 3,
+      toId = 4,
+      resultingValue = Some(42),
+      cost = 2.5
     )
-    result should contain theSameElementsAs expected
+
+    result should contain theSameElementsAs List(expectedAction)
+  }
+
+  it should "handle invalid input gracefully" in {
+    // Test with an invalid input that doesn't match the ActionObjectPattern
+    val input = "InvalidInput"
+    val result = MapReduceEdges.retrieveActionObjects(input)
+
+    result should be(empty)
   }
 
 }

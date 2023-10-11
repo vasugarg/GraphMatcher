@@ -18,11 +18,11 @@ object GraphBuilder {
   def loadGraph(outGraphFileName: String, outputDirectory: String): Option[(NetGraph, List[NodeObject], List[Action])] = {
 
     val graph: Option[NetGraph] = if (outputDirectory.startsWith("s3")) {
-      logger.warn(s"File $outGraphFileName is located, loading it up. If you want a new generated graph please delete the existing file or change the file name.")
+      logger.info(s"Seems like the path is remote i.e. S3 bucket, loading it up.")
       NetGraph.load(outGraphFileName, outputDirectory, true, true)
     } else {
-      logger.error(s"Graph Not found")
-      None
+      logger.warn(s"File $outputDirectory$outGraphFileName is located, loading it up.")
+      NetGraph.load(fileName = s"$outGraphFileName", dir = s"$outputDirectory", false, false)
     }
     graph match {
       case Some(netGraph) =>

@@ -95,10 +95,6 @@ class subgraphGeneratorTest extends AnyFlatSpec with Matchers with MockitoSugar 
     val subgraphs = sg.generateSubGraphs(graph.initState, 2)
 
     // Assert that the result is not empty and contains induced subgraphs
-    for (elem <- subgraphs) {
-      println(elem.nodes().asScala)
-      println(elem.edges().asScala)
-    }
     subgraphs should not be empty
     subgraphs.foreach { inducedGraph =>
       inducedGraph.nodes().asScala should not be empty

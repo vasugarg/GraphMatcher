@@ -16,11 +16,12 @@ import org.slf4j.Logger
 class MapReduceNodesTest extends AnyFlatSpec with Matchers with MockitoSugar {
 
   it should "handle valid input with special characters in properties" in {
-    val input = "NodeObject(1, 2, 3, 4, 5, 6, 7, 1.23) NodeObject(1, 22, 3, 4, 5, 6, 7, 4, 4.23)"
+    val input = "NodeObject(0,3,11,1,92,1,5,2,0.6143455019720926)"
     val result = MapReduceNodes.retrieveNodeObjects(input)
+    println(result)
     val expected = List(
-      NodeObject(1, 2, 3, 4, 5, 6, 7, 1, 1.23),
-      NodeObject(1, 22, 3, 4, 5, 6, 7, 4, 4.23))
+      NodeObject(0,3,11,1,92,1,5,2,0.6143455019720926)
+    )
     result should contain theSameElementsAs expected
   }
 }

@@ -32,13 +32,13 @@ object MapReduceNodes {
       val id = matchResult.group(1).toInt
       val children = matchResult.group(2).toInt
       val props = matchResult.group(3).toInt
-      val propValueRange = matchResult.group(4).toInt
-      val maxDepth = matchResult.group(5).toInt
-      val maxBranchingFactor = matchResult.group(6).toInt
-      val maxProperties = matchResult.group(7).toInt
-      val storedValue = matchResult.group(8).toDouble
-
-      NodeObject(id = id, children = children, props = props, propValueRange = propValueRange, maxDepth = maxDepth,
+      val currentDepth = matchResult.group(4).toInt
+      val propValueRange = matchResult.group(5).toInt
+      val maxDepth = matchResult.group(6).toInt
+      val maxBranchingFactor = matchResult.group(7).toInt
+      val maxProperties = matchResult.group(8).toInt
+      val storedValue = matchResult.group(9).toDouble
+      NodeObject(id = id, children = children, props = props, currentDepth = currentDepth, propValueRange = propValueRange, maxDepth = maxDepth,
         maxBranchingFactor = maxBranchingFactor, maxProperties = maxProperties, storedValue = storedValue)
     }.toList
     nodeObjects

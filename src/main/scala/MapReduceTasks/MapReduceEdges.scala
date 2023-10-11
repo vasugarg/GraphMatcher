@@ -28,6 +28,31 @@ import org.slf4j.Logger
 object MapReduceEdges {
   val logger: Logger = CreateLogger(this.getClass)
 
+  def retrieveActionObjects(part: String): List[Action] = {
+    val ActionObjectPattern: Regex = """Action\((\d+),(NodeObject\([^)]+\)),(NodeObject\([^)]+\)),(\d+),(\d+),(None|Some\(\d+\)),([\d.]+(?:E[-+]?\d+)?)\)""".r
+    val ActionObjectMatches = ActionObjectPattern.findAllMatchIn(part)
+    val ActionObjects = ActionObjectMatches.map { matchResult =>
+      val actionType = matchResult.group(1).toInt
+      val NodeObjectSource = retrieveNodeObjects(matchResult.group(2))
+      val NodeObjectDest = retrieveNodeObjects(matchResult.group(3))
+      val fromId = matchResult.group(4).toInt
+      val toId = matchResult.group(5).toInt
+      val resultingValue = matchResult.group(6) match {
+        case s if s.startsWith("Some(") && s.endsWith(")") =>
+          try {
+            Some(s.substring(5, s.length - 1).toInt)
+          } catch {
+            case _: NumberFormatException => None
+          }
+        case _ => None
+      }
+      val cost = matchResult.group(7).toDouble
+
+      Action(actionType = actionType, fromNode = NodeObjectSource.last, toNode = NodeObjectDest.last, fromId = fromId, toId = toId,
+        resultingValue = resultingValue, cost = cost)
+    }.toList
+    ActionObjects
+  }
   def retrieveNodeObjects(part: String): List[NodeObject] = {
     val nodeObjectPattern: Regex = """NodeObject\((\d+),(\d+),(\d+),(\d+),(\d+),(\d+),(\d+),(\d+),(\d+\.\d+)\)""".r
     val nodeObjectMatches = nodeObjectPattern.findAllMatchIn(part)
@@ -35,13 +60,13 @@ object MapReduceEdges {
       val id = matchResult.group(1).toInt
       val children = matchResult.group(2).toInt
       val props = matchResult.group(3).toInt
-      val propValueRange = matchResult.group(4).toInt
-      val maxDepth = matchResult.group(5).toInt
-      val maxBranchingFactor = matchResult.group(6).toInt
-      val maxProperties = matchResult.group(7).toInt
-      val storedValue = matchResult.group(8).toDouble
-
-      NodeObject(id = id, children = children, props = props, propValueRange = propValueRange, maxDepth = maxDepth,
+      val currentDepth = matchResult.group(4).toInt
+      val propValueRange = matchResult.group(5).toInt
+      val maxDepth = matchResult.group(6).toInt
+      val maxBranchingFactor = matchResult.group(7).toInt
+      val maxProperties = matchResult.group(8).toInt
+      val storedValue = matchResult.group(9).toDouble
+      NodeObject(id = id, children = children, props = props, currentDepth = currentDepth, propValueRange = propValueRange, maxDepth = maxDepth,
         maxBranchingFactor = maxBranchingFactor, maxProperties = maxProperties, storedValue = storedValue)
     }.toList
     nodeObjects
@@ -53,32 +78,6 @@ object MapReduceEdges {
 
       val line: String = value.toString
       val pairs = line.split(";")
-
-      def retrieveActionObjects(part: String): List[Action] = {
-        val ActionObjectPattern: Regex = """Action\((\d+),(NodeObject\([^)]+\)),(NodeObject\([^)]+\)),(\d+),(\d+),(None|Some\(\d+\)),([\d.]+(?:E[-+]?\d+)?)\)""".r
-        val ActionObjectMatches = ActionObjectPattern.findAllMatchIn(part)
-        val ActionObjects = ActionObjectMatches.map { matchResult =>
-          val actionType = matchResult.group(1).toInt
-          val NodeObjectSource = retrieveNodeObjects(matchResult.group(2))
-          val NodeObjectDest = retrieveNodeObjects(matchResult.group(3))
-          val fromId = matchResult.group(4).toInt
-          val toId = matchResult.group(5).toInt
-          val resultingValue = matchResult.group(6) match {
-            case s if s.startsWith("Some(") && s.endsWith(")") =>
-              try {
-                Some(s.substring(5, s.length - 1).toInt)
-              } catch {
-                case _: NumberFormatException => None
-              }
-            case _ => None
-          }
-          val cost = matchResult.group(7).toDouble
-
-          Action(actionType = actionType, fromNode = NodeObjectSource.last, toNode = NodeObjectDest.last, fromId = fromId, toId = toId,
-            resultingValue = resultingValue, cost = cost)
-        }.toList
-        ActionObjects
-      }
 
       def calculateActionSimilarity(action: Action, G: List[Action]): List[(Action, Double)] = {
         val setOriginalProps = Set(action.actionType, action.fromId, action.toId, action.resultingValue, action.cost)
