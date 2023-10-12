@@ -3,11 +3,14 @@ package com.lsc
 import scala.collection.mutable
 import scala.collection.mutable.{HashMap, HashSet}
 import HelperUtilz.*
+
 import Utilz.CreateLogger
+import com.lsc.Main.{config, logger}
 import org.slf4j.Logger
 
 object Results {
   val logger: Logger = CreateLogger(classOf[Main.type])
+
   def calculateScores(OutputNodeResults: (Set[String], Set[String], Set[String], Set[String]),
                       OutputEdgeResults: (Set[String], Set[String], Set[String], Set[String]),
                       nodesYAML: Nodes,
@@ -99,6 +102,7 @@ object Results {
       }
       (atl, ctl, wtl)
     }
+
     logger.info("Completed the iteration over nodes and edges. Now calculating the accuracy/precision")
 
     val (atlNodes, ctlNodes, wtlNodes) = calculateNodeScore(removedNodesPred, mutable.HashSet(nodesYAML.Removed.keys.toSeq: _*)) match {
@@ -113,8 +117,18 @@ object Results {
     val RTL = GTL + BTL
     val VPR: Double = ((GTL - BTL) / (2 * RTL)) + 0.5
     logger.info(s"VPR: $VPR")
-    val ACC: Double = GTL / RTL
+    val ACC: Double = Math.round((GTL.toDouble / RTL) * 100.0) / 100.0
     logger.info(s"ACC: $ACC")
     (VPR, ACC)
   }
+}
+@main def calculate() = {
+  val yamlFilePath = config.getString("NGSimulator.ngsCompareLocal.yamlFilePath")
+  val yamlParser = new YamlParser(yamlFilePath)
+  val (nodesYAML, edgesYAML) = yamlParser.parseYaml()
+  val edgesResult = TextParser(filePath = config.getString("NGSimulator.ngsCompareLocal.mapReduceOutputDir") + config.getString("NGSimulator.ngsCompareLocal.task3Name") + "/" + "part-00000")
+  val OutputEdgeResults = edgesResult.parse()
+  val nodeResult = TextParser(filePath = config.getString("NGSimulator.ngsCompareLocal.mapReduceOutputDir") + config.getString("NGSimulator.ngsCompareLocal.task4Name") + "/" + "part-00000")
+  val OutputNodeResults = nodeResult.parse()
+  Results.calculateScores(OutputNodeResults, OutputEdgeResults, nodesYAML, edgesYAML)
 }
